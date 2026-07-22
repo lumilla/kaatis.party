@@ -21,6 +21,12 @@ const uploadDirectory = process.env.UPLOAD_DIR || 'public/'
 const htaccessPath = process.env.HTACCESS_PATH || 'public/.htaccess'
 const indexPath = process.env.INDEX_PATH || 'public/indeksi.csv'
 const selectedLanguage = process.env.LANGUAGE || 'english'
+const allowedWebhookIds = process.env.ALLOWED_WEBHOOK_IDS
+  ? process.env.ALLOWED_WEBHOOK_IDS // allows any number of allowlisted webhooks, seperated by comma
+      .split(',')
+      .map(id => id.trim())
+      .filter(id => id.length > 0) // keeps only non-empty strings
+  : []
 
 const selectedTranslations = translatedMessages[selectedLanguage]
 
@@ -37,9 +43,10 @@ client.on('message', async (message) => {
   // The attachments of messages that are prefixed with '!' are not processed
   if (message.content.startsWith('!')) return
 
-  // Ignore messages by bots (kameli encoding videos)
-  if (message.author.bot) return
-
+  // Ignore messages by bots (kameli encoding videos)...
+  const isAllowedWebhook = message.webhookID && allowedWebhookIds.includes(message.webhookID)
+  if (message.author.bot && !isAllowedWebhook) return //...UNLESS the message comes from an allowlisted webhook
+  
   const contentRows = message.content.split('\n')
 
   for (const attachment of message.attachments.values()) {

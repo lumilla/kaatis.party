@@ -21,12 +21,10 @@ const uploadDirectory = process.env.UPLOAD_DIR || 'public/'
 const htaccessPath = process.env.HTACCESS_PATH || 'public/.htaccess'
 const indexPath = process.env.INDEX_PATH || 'public/indeksi.csv'
 const selectedLanguage = process.env.LANGUAGE || 'english'
-const allowedWebhookIds = process.env.ALLOWED_WEBHOOK_IDS
-  ? process.env.ALLOWED_WEBHOOK_IDS // allows any number of allowlisted webhooks, seperated by comma
-      .split(',')
-      .map(id => id.trim())
-      .filter(id => id.length > 0) // keeps only non-empty strings
-  : []
+const allowedWebhookIds = (process.env.ALLOWED_WEBHOOK_IDS ?? '')
+  .split(',')
+  .map(id => id.trim())
+  .filter(Boolean);
 
 const selectedTranslations = translatedMessages[selectedLanguage]
 
